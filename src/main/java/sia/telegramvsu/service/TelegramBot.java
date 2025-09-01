@@ -99,7 +99,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 
             } else if (!userRepository.existsById(chatId)){
-                sendMessage(chatId, "Введите название группы вместе с подгруппой так как указанно в расписании \n Например: 24ИСиТ1д_1");
+                sendChosenStatus(chatId);
                 registerUsers(msg);
             } else {
                 if (excelParser.isGroup(msg.getText())) {
@@ -162,6 +162,12 @@ public class TelegramBot extends TelegramLongPollingBot {
                 deleteMessages(chatId, messageId);
             }else if (callBackQuery.equals("CHANGE_DAY")) {
                 sendChosenDayWeek(chatId, user.getGroup());
+            }else if (callBackQuery.equals("TEACHER_BUTTON")) {
+                sendMessage(chatId, "Введите название группы вместе с подгруппой так как указанно в расписании \n Например: 24ИСиТ1д_1");
+                deleteMessages(chatId, messageId);
+            }else if (callBackQuery.equals("STUDENT_BUTTON")) {
+                sendMessage(chatId, "Введите название группы вместе с подгруппой так как указанно в расписании \n Например: 24ИСиТ1д_1");
+                deleteMessages(chatId, messageId);
             }
         }
     }
