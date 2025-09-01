@@ -1,6 +1,4 @@
-package shatilo.springtgbot.service;
-
-import shatilo.springtgbot.model.WeekDay;
+package sia.telegramvsu.service;
 
 public class Test {
     public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package shatilo.springtgbot.service;
+package sia.telegramvsu.service;
 
 import jakarta.ws.rs.NotFoundException;
 import lombok.Getter;
@@ -20,10 +20,10 @@ import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import shatilo.springtgbot.config.BotConfig;
-import shatilo.springtgbot.model.User;
-import shatilo.springtgbot.model.UserRepository;
-import shatilo.springtgbot.model.WeekDay;
+import sia.telegramvsu.config.BotConfig;
+import sia.telegramvsu.model.User;
+import sia.telegramvsu.model.UserRepository;
+import sia.telegramvsu.model.WeekDay;
 
 import java.io.IOException;
 import java.util.ArrayList;

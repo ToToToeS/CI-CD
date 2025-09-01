@@ -1,4 +1,4 @@
-package shatilo.springtgbot.model;
+package sia.telegramvsu.model;
 
 import org.springframework.data.repository.CrudRepository;
 

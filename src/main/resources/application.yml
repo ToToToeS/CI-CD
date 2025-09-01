@@ -1,1 +1,26 @@
-spring.application.name=TelegramVSU
+spring:
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/users
+    username: user
+    password: password
+
+
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  application:
+    name: SpringTgBot
+
+
+path:
+  filepath_VSMU: D:\var\log\shatilo\2 ???? ???. 25.docx
+  website: https://vsu.by/universitet/fakultety/matematiki-i-it/raspisanie.html
+  excel: /var/log/shatilo/1.xlsx
+
+bot:
+  name: ScheduleVSU
+  token: 8018103170:AAHSoM4M9cPdBDvzr9grFNJxOHw9Fxuoxdg

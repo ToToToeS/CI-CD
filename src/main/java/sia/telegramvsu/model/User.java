@@ -1,4 +1,4 @@
-package shatilo.springtgbot.model;
+package sia.telegramvsu.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

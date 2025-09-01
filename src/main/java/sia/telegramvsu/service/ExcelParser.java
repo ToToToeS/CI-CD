@@ -1,13 +1,16 @@
-package shatilo.springtgbot.service;
+package sia.telegramvsu.service;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import shatilo.springtgbot.model.LessonVSU;
-import shatilo.springtgbot.model.WeekDay;
+import sia.telegramvsu.model.LessonVSU;
+import sia.telegramvsu.model.WeekDay;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -103,12 +106,7 @@ public class ExcelParser {
                 
                 """.formatted(weekDay.dayString));
         for (LessonVSU lesson : lessons) {
-            if (lesson.getSubject().isEmpty()) {
-//                sb.append("""
-//                        <b>№%s</b> %s
-//
-//                        """.formatted(lesson.getNumber(), lesson.getTime()));
-            }else {
+            if (!lesson.getSubject().isEmpty()) {
                 sb.append("""
                         <b>№%s</b> %s
                           <b>%s</b>

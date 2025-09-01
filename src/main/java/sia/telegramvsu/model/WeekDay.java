@@ -1,4 +1,4 @@
-package shatilo.springtgbot.model;
+package sia.telegramvsu.model;
 
 public enum WeekDay {
     MONDAY(14, 38, "Понедельник"), TUESDAY(39, 63, "Вторник"), WEDNESDAY(64, 88, "Среда"),
