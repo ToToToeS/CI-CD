@@ -86,7 +86,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         User user = userRepository.findById(chatId).get();
                         user.setGroup(null);
                         userRepository.save(user);
-                        sendMessage(chatId, "Введите название группы вместе с подгруппой так как указанно в расписании \n Например: 24ИСиТ1д_1");
+                        sendChosenStatus(chatId);
                         break;
                     case "/donate":
                         sendMessage(chatId, """
@@ -223,6 +223,35 @@ public class TelegramBot extends TelegramLongPollingBot {
         rowsInLine.add(rowInLine2);
         rowsInLine.add(rowInLine3);
         rowsInLine.add(rowInLine4);
+
+        inlineKeyboardButton.setKeyboard(rowsInLine);
+
+        sendMessage.setReplyMarkup(inlineKeyboardButton);
+        executeMessage(sendMessage);
+    }
+
+    private void sendChosenStatus(long chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setText("Кто вы?");
+        sendMessage.setChatId(chatId);
+
+        InlineKeyboardMarkup inlineKeyboardButton = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
+        List<InlineKeyboardButton> rowInLine1 = new ArrayList<>();
+
+        var teacherButton = new InlineKeyboardButton();
+        var studentButton = new InlineKeyboardButton();
+
+        teacherButton.setText("Преподаватель");
+        studentButton.setText("Студент");
+
+        teacherButton.setCallbackData("TEACHER_BUTTON");
+        studentButton.setCallbackData("STUDENT_BUTTON");
+
+        rowInLine1.add(teacherButton);
+        rowInLine1.add(studentButton);
+
+        rowsInLine.add(rowInLine1);
 
         inlineKeyboardButton.setKeyboard(rowsInLine);
 

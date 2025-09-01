@@ -23,4 +23,7 @@ public class User {
     @Column(name = "group_name")
     private String group;
 
+
+    private Boolean Teacher;
+
 }
