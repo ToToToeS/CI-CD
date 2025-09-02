@@ -122,42 +122,42 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             if (callBackQuery.equals("MONDAY_BUTTON")) {
 
-                String message = excelParser.getDaySubjects(WeekDay.MONDAY, group);
+                String message = excelParser.getDaySubjectsStudent(WeekDay.MONDAY, group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
             } else if (callBackQuery.equals("TUESDAY_BUTTON")) {
 
-                String message = excelParser.getDaySubjects(WeekDay.TUESDAY, group);
+                String message = excelParser.getDaySubjectsStudent(WeekDay.TUESDAY, group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
             } else if (callBackQuery.equals("WEDNESDAY_BUTTON")) {
 
-                String message = excelParser.getDaySubjects(WeekDay.WEDNESDAY, group);
+                String message = excelParser.getDaySubjectsStudent(WeekDay.WEDNESDAY, group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
             }else if (callBackQuery.equals("THURSDAY_BUTTON")) {
 
-                String message = excelParser.getDaySubjects(WeekDay.THURSDAY, group);
+                String message = excelParser.getDaySubjectsStudent(WeekDay.THURSDAY, group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
             } else if (callBackQuery.equals("FRIDAY_BUTTON")) {
 
-                String message = excelParser.getDaySubjects(WeekDay.FRIDAY, group);
+                String message = excelParser.getDaySubjectsStudent(WeekDay.FRIDAY, group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
             } else if (callBackQuery.equals("SATURDAY_BUTTON")) {
 
-                String message = excelParser.getDaySubjects(WeekDay.SATURDAY, group);
+                String message = excelParser.getDaySubjectsStudent(WeekDay.SATURDAY, group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
             } else if (callBackQuery.equals("ALL_BUTTON")) {
-                String message = excelParser.getWeekSubjects(group);
+                String message = excelParser.getWeekSubjectsStudent(group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
             }else if (callBackQuery.equals("CHANGE_DAY")) {
@@ -167,6 +167,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 deleteMessages(chatId, messageId);
             }else if (callBackQuery.equals("STUDENT_BUTTON")) {
                 sendMessage(chatId, "Введите название группы вместе с подгруппой так как указанно в расписании \n Например: 24ИСиТ1д_1");
+                sendMessage(chatId, excelParser.getDaySubjectsTeacher(WeekDay.MONDAY, "Молодечкина А. А."));
                 deleteMessages(chatId, messageId);
             }
         }

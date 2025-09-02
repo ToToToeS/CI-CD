@@ -26,7 +26,7 @@ import java.util.Map;
 public class ExcelParser {
 
     @Value("${path.excel}")
-    private String filePath;
+    private static String filePath = "/var/log/shatilo/1.xlsx";
 
     final int ROWS_BETWEEN_LESSONS = 3;
     final int TIME_COLUMN_NUMBER = 2;
@@ -65,18 +65,60 @@ public class ExcelParser {
         this.schedules = list;
     }
 
-    public String getWeekSubjects(String groupName) {
+    public String getWeekSubjectsStudent(String groupName) {
         StringBuilder sb = new StringBuilder();
             sb.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
         for (WeekDay weekDay : WeekDay.values()) {
-            sb.append(getDaySubjects(weekDay, groupName))
+            sb.append(getDaySubjectsStudent(weekDay, groupName))
             .append("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
         }
         return sb.toString();
     }
 
-    public String getDaySubjects(WeekDay weekDay, String groupName) {
+    public String getDaySubjectsTeacher(WeekDay weekDay, String nameTeacher) {
+        List<LessonVSU> lessons = new ArrayList<>();
+        int size = schedules.get(GROUPS_ROW_NUMBER).size();
+
+        for (int indexGroup = 3; indexGroup < size; indexGroup++) {
+
+
+            for (int i = weekDay.firstRow; i < weekDay.lastRow; i += ROWS_BETWEEN_LESSONS) {
+                boolean isWas = false;
+                for (indexGroup = 3; indexGroup < size; indexGroup++) {
+                    if (nameTeacher.equals(schedules.get(i + 1).get(indexGroup)) && !isWas) {
+                        LessonVSU lesson = new LessonVSU();
+                        lesson.setNumber(schedules.get(i).get(TIME_COLUMN_NUMBER));
+                        lesson.setTime(schedules.get(i + 1).get(TIME_COLUMN_NUMBER));
+
+                        lesson.setSubject(schedules.get(i).get(indexGroup));
+                        lesson.setLector(schedules.get(GROUPS_ROW_NUMBER).get(indexGroup));
+                        lesson.setAuditorium(schedules.get(i + 2).get(indexGroup));
+
+                        lessons.add(lesson);
+                        isWas = true;
+                    }else if (nameTeacher.equals(schedules.get(i + 1).get(indexGroup)) && isWas) {
+                        lessons.get(lessons.size() - 1).setLector(lessons.get(lessons.size() - 1).getLector() + ", " + schedules.get(GROUPS_ROW_NUMBER).get(indexGroup));
+                    }
+                }
+            }
+        }
+
+        return formatLessons(lessons, weekDay);
+    }
+
+    public String getWeekSubjectsTeacher(String nameTeacher) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+        for (WeekDay weekDay : WeekDay.values()) {
+            sb.append(getDaySubjectsTeacher(weekDay, nameTeacher))
+                    .append("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+
+        }
+        return sb.toString();
+    }
+
+    public String getDaySubjectsStudent(WeekDay weekDay, String groupName) {
         int indexGroup = findGroupIndex(groupName);
         List<LessonVSU> lessons = new ArrayList<>();
 
@@ -99,7 +141,7 @@ public class ExcelParser {
     }
 
     private String formatLessons(List<LessonVSU> lessons, WeekDay weekDay) {
-        StringBuilder sb = new StringBuilder();
+       StringBuilder sb = new StringBuilder();
 
         sb.append("""
                 <u><b>%s:</b></u>
