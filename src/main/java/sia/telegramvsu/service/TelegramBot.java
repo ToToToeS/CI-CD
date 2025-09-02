@@ -10,13 +10,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
-import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -35,6 +32,10 @@ import java.util.List;
 @Setter
 @EnableScheduling
 public class TelegramBot extends TelegramLongPollingBot {
+
+    private final String TEACHER = "Преподаватель";
+    private final String STUDENT = "Cтудент";
+    private final String NOBODY = "Никто";
 
     private UserRepository userRepository;
     private BotConfig botConfig;
@@ -57,14 +58,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         downloadExcel.downloadSchedules();
         excelParser.parseExel();
-        List<BotCommand> listOfCommand = new ArrayList<>();
-        listOfCommand.add(new BotCommand("/reset", "Command to reset group"));
 
-        try{
-            execute(new SetMyCommands(listOfCommand, new BotCommandScopeDefault(),null));
-        } catch (TelegramApiException exception ) {
-            log.error("Error execute list of command " + exception.getMessage());
-        }
     }
 
     @Override
@@ -79,38 +73,55 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             long chatId = update.getMessage().getChatId();
             Message msg = update.getMessage();
+            User user = userRepository.findById(chatId).orElse(new User());
 
-            if (userRepository.findById(chatId).isPresent() && userRepository.findById(chatId).orElse(null).getGroup() != null) {
+            if (user.getUserName() == null ) {
+                registerUsersInDB(msg);
+                sendChosenStatus(chatId);
+            }
+
+
+            if (user.getUserName() != null) {
                 switch (msg.getText()) {
                     case "/reset":
-                        User user = userRepository.findById(chatId).get();
-                        user.setGroup(null);
-                        userRepository.save(user);
-                        sendChosenStatus(chatId);
+                        if (user.getStatus().equals(NOBODY)) {
+                            sendMessage(chatId, "Выберете кем вы являетесь");
+                        } else {
+                            user.setGroup(null);
+                            user.setStatus(NOBODY);
+                            userRepository.save(user);
+
+                            sendChosenStatus(chatId);
+                        }
                         break;
                     case "/donate":
                         sendMessage(chatId, """
                                 belinvestbank: 5578843371248679
                                 """);
-                    default:
-                        sendChosenDayWeek(chatId, userRepository.findById(chatId).get().getGroup());
-
-                }
-
-
-            } else if (!userRepository.existsById(chatId)){
-                sendChosenStatus(chatId);
-                registerUsers(msg);
-            } else {
-                if (excelParser.isGroup(msg.getText())) {
-                    User user = userRepository.findById(chatId).orElse(null);
-                    user.setGroup(msg.getText());
-                    userRepository.save(user);
-                    sendChosenDayWeek(chatId, user.getGroup());
-                } else {
-                    sendMessage(chatId, "Группа не найдена, попробуйте ещё раз:");
                 }
             }
+
+
+            if (user.getStatus().equals(TEACHER)) {
+                if (user.getGroup() == null && excelParser.isTeacher(msg.getText())) {
+                    user.setGroup(msg.getText());
+                    sendChosenDayWeek(chatId, msg.getText());
+                    userRepository.save(user);
+                } else {
+                    sendMessage(chatId,"Введите ФИО так как указанно в расписании \nНапример: Дрозд Е. М.");
+                }
+            }
+
+            if (user.getStatus().equals(STUDENT)) {
+                if (user.getGroup() == null && excelParser.isGroup(msg.getText())) {
+                    user.setGroup(msg.getText());
+                    sendChosenDayWeek(chatId, msg.getText());
+                    userRepository.save(user);
+                } else {
+                    sendMessage(chatId,"Введите название группы вместе с подгруппой так как указанно в расписании \nНапример: 24ИСиТ1д_1");
+                }
+            }
+
 
 
         } else if (update.hasCallbackQuery()) {
@@ -122,52 +133,55 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             if (callBackQuery.equals("MONDAY_BUTTON")) {
 
-                String message = excelParser.getDaySubjectsStudent(WeekDay.MONDAY, group);
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getDaySubjectsTeacher(WeekDay.MONDAY, group) : excelParser.getDaySubjectsStudent(WeekDay.MONDAY, group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
             } else if (callBackQuery.equals("TUESDAY_BUTTON")) {
 
-                String message = excelParser.getDaySubjectsStudent(WeekDay.TUESDAY, group);
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getDaySubjectsTeacher(WeekDay.TUESDAY, group) : excelParser.getDaySubjectsStudent(WeekDay.TUESDAY, group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
             } else if (callBackQuery.equals("WEDNESDAY_BUTTON")) {
 
-                String message = excelParser.getDaySubjectsStudent(WeekDay.WEDNESDAY, group);
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getDaySubjectsTeacher(WeekDay.WEDNESDAY, group) : excelParser.getDaySubjectsStudent(WeekDay.WEDNESDAY, group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
             }else if (callBackQuery.equals("THURSDAY_BUTTON")) {
 
-                String message = excelParser.getDaySubjectsStudent(WeekDay.THURSDAY, group);
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getDaySubjectsTeacher(WeekDay.THURSDAY, group) : excelParser.getDaySubjectsStudent(WeekDay.THURSDAY, group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
             } else if (callBackQuery.equals("FRIDAY_BUTTON")) {
 
-                String message = excelParser.getDaySubjectsStudent(WeekDay.FRIDAY, group);
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getDaySubjectsTeacher(WeekDay.FRIDAY, group) : excelParser.getDaySubjectsStudent(WeekDay.FRIDAY, group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
             } else if (callBackQuery.equals("SATURDAY_BUTTON")) {
 
-                String message = excelParser.getDaySubjectsStudent(WeekDay.SATURDAY, group);
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getDaySubjectsTeacher(WeekDay.SATURDAY, group) : excelParser.getDaySubjectsStudent(WeekDay.SATURDAY, group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
             } else if (callBackQuery.equals("ALL_BUTTON")) {
-                String message = excelParser.getWeekSubjectsStudent(group);
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getWeekSubjectsTeacher(group) : excelParser.getWeekSubjectsStudent(group);
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
-            }else if (callBackQuery.equals("CHANGE_DAY")) {
+            } else if (callBackQuery.equals("CHANGE_DAY")) {
                 sendChosenDayWeek(chatId, user.getGroup());
-            }else if (callBackQuery.equals("TEACHER_BUTTON")) {
-                sendMessage(chatId, "Введите название группы вместе с подгруппой так как указанно в расписании \n Например: 24ИСиТ1д_1");
+            } else if (callBackQuery.equals("TEACHER_BUTTON")) {
+                sendMessage(chatId, "Введите ФИО так как указанно в расписании \nНапример: Дрозд Е. М.");
+                user.setStatus(TEACHER);
+                userRepository.save(user);
                 deleteMessages(chatId, messageId);
-            }else if (callBackQuery.equals("STUDENT_BUTTON")) {
-                sendMessage(chatId, "Введите название группы вместе с подгруппой так как указанно в расписании \n Например: 24ИСиТ1д_1");
-                sendMessage(chatId, excelParser.getDaySubjectsTeacher(WeekDay.MONDAY, "Молодечкина А. А."));
+            } else if (callBackQuery.equals("STUDENT_BUTTON")) {
+                sendMessage(chatId, "Введите название группы вместе с подгруппой так как указанно в расписании \nНапример: 24ИСиТ1д_1");
+                user.setStatus(STUDENT);
+                userRepository.save(user);
                 deleteMessages(chatId, messageId);
             }
         }
@@ -177,7 +191,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText("""
-                Группа: %s
+                %s
                 
                 Выберете день недели:
                 """.formatted(group));
@@ -312,7 +326,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         executeMessage(sendMessage);
     }
 
-    private void registerUsers(Message msg) {
+    private void registerUsersInDB(Message msg) {
         var chat = msg.getChat();
 
         User user = new User();
@@ -320,6 +334,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         user.setFirstName(chat.getFirstName());
         user.setLastName(chat.getLastName());
         user.setUserName(chat.getUserName());
+        user.setStatus(NOBODY);
 
         userRepository.save(user);
         log.info("User register " + user.toString());

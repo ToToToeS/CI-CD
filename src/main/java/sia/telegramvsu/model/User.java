@@ -24,6 +24,6 @@ public class User {
     private String group;
 
 
-    private Boolean Teacher;
+    private String status;
 
 }

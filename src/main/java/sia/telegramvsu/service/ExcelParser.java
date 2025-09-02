@@ -161,6 +161,24 @@ public class ExcelParser {
         return sb.toString();
     }
 
+    public boolean isTeacher(String nameTeacher) {
+        int size = schedules.get(GROUPS_ROW_NUMBER).size();
+
+        for (int indexGroup = 3; indexGroup < size; indexGroup++) {
+            for (var weekDay : WeekDay.values()) {
+                for (int i = weekDay.firstRow; i < weekDay.lastRow; i += ROWS_BETWEEN_LESSONS) {
+                    for (indexGroup = 3; indexGroup < size; indexGroup++) {
+                        if (nameTeacher.equals(schedules.get(i + 1).get(indexGroup))) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     public boolean isGroup(String group) {
         return findGroupIndex(group) != -1;
     }
