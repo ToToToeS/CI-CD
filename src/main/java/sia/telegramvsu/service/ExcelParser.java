@@ -26,7 +26,7 @@ import java.util.Map;
 public class ExcelParser {
 
     @Value("${path.excel}")
-    private static String filePath = "/var/log/shatilo/1.xlsx";
+    private String filePath = "/var/log/shatilo/1.xlsx";
 
     final int ROWS_BETWEEN_LESSONS = 3;
     final int TIME_COLUMN_NUMBER = 2;

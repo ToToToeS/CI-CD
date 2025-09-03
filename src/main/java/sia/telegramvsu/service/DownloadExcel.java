@@ -24,7 +24,7 @@ public class DownloadExcel {
     @Value("${path.excel}")
     private String pathExcel;
     @Value("${path.website}")
-    private String siteUrl;
+    private String[] siteUrls;
 
 
 
@@ -52,19 +52,22 @@ public class DownloadExcel {
     public void downloadSchedules() {
         String filePattern = ".xlsx";
         try {
-            Document doc = Jsoup.connect(siteUrl).get();
-            Elements links = doc.select("a[href]");
+            int i = 1;
+            for (String siteUrl : siteUrls) {
+                Document doc = Jsoup.connect(siteUrl).get();
+                Elements links = doc.select("a[href]");
 
-            for (Element link : links) {
-                String href = link.attr("href");
-                if (href.contains(filePattern)) {
-                    // Скачать файл по найденной ссылке
-                    downloadFile("https://vsu.by" + href, pathExcel);
-                    log.info("Excel file downloaded successful");
-                    break;
+                for (Element link : links) {
+                    String href = link.attr("href");
+                    if (href.contains(filePattern)) {
+                        // Скачать файл по найденной ссылке
+                        downloadFile("https://vsu.by" + href, pathExcel + i + ".xlsx");
+                        log.info("Excel file downloaded successful");
+                        i++;
+                    }
                 }
+                log.error("ExcelFile in website not found");
             }
-            log.error("ExcelFile in website not found");
         } catch (IOException e) {
             log.error("Excel file no downloaded");
         }

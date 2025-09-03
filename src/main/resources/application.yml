@@ -17,9 +17,17 @@ spring:
 
 
 path:
-  filepath_VSMU: D:\var\log\shatilo\2 ???? ???. 25.docx
-  website: https://vsu.by/universitet/fakultety/matematiki-i-it/raspisanie.html
-  excel: /var/log/shatilo/1.xlsx
+  website:
+    -https://vsu.by/universitet/fakultety/matematiki-i-it/raspisanie.html
+    -https://vsu.by/universitet/fakultety/obucheniya-inostrannykh-grazhdan/raspisanie.html
+    -https://vsu.by/universitet/fakultety/biologicheskij/raspisanie.html
+    -https://vsu.by/universitet/fakultety/pedagogicheskij-fakultet/raspisanie.html
+    -https://vsu.by/universitet/fakultety/sotsialnoj-pedagogiki-i-psikhologii/raspisanie.html
+    -https://vsu.by/universitet/fakultety/fizicheskoj-kultury-i-sporta/raspisanie.html
+    -https://vsu.by/universitet/fakultety/fakultet-gumanitarnogo-znaniya-i-kommunikacij/raspisanie.html
+    -https://vsu.by/universitet/fakultety/khudozhestvenno-graficheskij/raspisanie.html
+    -https://vsu.by/universitet/fakultety/yuridicheskij/raspisanie.html
+  excel: /var/log/shatilo/
 
 bot:
   name: ScheduleVSU
