@@ -1,1 +1,25 @@
-spring.application.name=TelegramVSU
+spring:
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/users
+    username: user
+    password: password
+
+
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  application:
+    name: SpringTgBot
+
+
+path:
+  website: https://vsu.by/universitet/fakultety/matematiki-i-it/raspisanie.html, https://vsu.by/universitet/fakultety/obucheniya-inostrannykh-grazhdan/raspisanie.html, https://vsu.by/universitet/fakultety/biologicheskij/raspisanie.html, https://vsu.by/universitet/fakultety/pedagogicheskij-fakultet/raspisanie.html, https://vsu.by/universitet/fakultety/sotsialnoj-pedagogiki-i-psikhologii/raspisanie.html, https://vsu.by/universitet/fakultety/fizicheskoj-kultury-i-sporta/raspisanie.html, https://vsu.by/universitet/fakultety/fakultet-gumanitarnogo-znaniya-i-kommunikacij/raspisanie.html, https://vsu.by/universitet/fakultety/khudozhestvenno-graficheskij/raspisanie.html, https://vsu.by/universitet/fakultety/yuridicheskij/raspisanie.html
+
+  excel: /var/log/shatilo/
+
+bot:
+  name: ScheduleVSU
+  token: 8377345016:AAF8v-nHFnYfF1-H1ELaxoqY141toQJ0Hs8

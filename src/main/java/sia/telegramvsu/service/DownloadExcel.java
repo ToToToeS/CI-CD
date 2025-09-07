@@ -1,18 +1,11 @@
-package shatilo.springtgbot.service;
+package sia.telegramvsu.service;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
@@ -22,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.List;
 
 
 @Slf4j
@@ -31,7 +25,7 @@ public class DownloadExcel {
     @Value("${path.excel}")
     private String pathExcel;
     @Value("${path.website}")
-    private String siteUrl;
+    private List<String> siteUrls;
 
 
 
@@ -59,19 +53,21 @@ public class DownloadExcel {
     public void downloadSchedules() {
         String filePattern = ".xlsx";
         try {
-            Document doc = Jsoup.connect(siteUrl).get();
-            Elements links = doc.select("a[href]");
+            int i = 1;
+            for (String siteUrl : siteUrls) {
+                Document doc = Jsoup.connect(siteUrl).get();
+                Elements links = doc.select("a[href]");
 
-            for (Element link : links) {
-                String href = link.attr("href");
-                if (href.contains(filePattern)) {
-                    // Скачать файл по найденной ссылке
-                    downloadFile("https://vsu.by" + href, pathExcel);
-                    log.info("Excel file downloaded successful");
-                    break;
+                for (Element link : links) {
+                    String href = link.attr("href");
+                    if (href.contains(filePattern)) {
+                        // Скачать файл по найденной ссылке
+                        downloadFile("https://vsu.by" + href, pathExcel + i + ".xlsx");
+                        log.info("Excel file downloaded successful");
+                        i++;
+                    }
                 }
             }
-            log.error("ExcelFile in website not found");
         } catch (IOException e) {
             log.error("Excel file no downloaded");
         }
