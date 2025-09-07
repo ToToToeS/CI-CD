@@ -84,41 +84,43 @@ public class TelegramBot extends TelegramLongPollingBot {
             if (user.getUserName() != null) {
                 switch (msg.getText()) {
                     case "/reset":
-                        if (user.getStatus().equals(NOBODY)) {
-                            sendMessage(chatId, "Выберете кем вы являетесь");
-                        } else {
                             user.setGroup(null);
                             user.setStatus(NOBODY);
                             userRepository.save(user);
-
                             sendChosenStatus(chatId);
-                        }
-                        break;
+
+                        return;
                     case "/donate":
                         sendMessage(chatId, """
                                 belinvestbank: 5578843371248679
                                 """);
+                        return;
                 }
+
             }
 
 
             if (user.getStatus().equals(TEACHER)) {
-                if (user.getGroup() == null && excelParser.isTeacher(msg.getText())) {
-                    user.setGroup(msg.getText());
+                if (user.getGroup() == null && excelParser.getTeacherHowInSchedule(msg.getText()) != null) {
+                    user.setGroup(excelParser.getTeacherHowInSchedule(msg.getText()));
                     sendChosenDayWeek(chatId, msg.getText());
                     userRepository.save(user);
+                    return;
                 } else {
                     sendMessage(chatId,"Введите ФИО так как указанно в расписании \nНапример: Дрозд Е. М.");
+                    return;
                 }
             }
 
-            if (user.getStatus().equals(STUDENT)) {
-                if (user.getGroup() == null && excelParser.isGroup(msg.getText())) {
-                    user.setGroup(msg.getText());
+            if (user.getStatus().equals(STUDENT) && user.getGroup() == null) {
+                if (excelParser.getGroupHowInSchedule(msg.getText()) != null) {
+                    user.setGroup(excelParser.getGroupHowInSchedule(msg.getText()));
                     sendChosenDayWeek(chatId, msg.getText());
                     userRepository.save(user);
+                    return;
                 } else {
                     sendMessage(chatId,"Введите название группы вместе с подгруппой так как указанно в расписании \nНапример: 24ИСиТ1д_1");
+                    return;
                 }
             }
 
@@ -176,11 +178,13 @@ public class TelegramBot extends TelegramLongPollingBot {
             } else if (callBackQuery.equals("TEACHER_BUTTON")) {
                 sendMessage(chatId, "Введите ФИО так как указанно в расписании \nНапример: Дрозд Е. М.");
                 user.setStatus(TEACHER);
+                user.setGroup(null);
                 userRepository.save(user);
                 deleteMessages(chatId, messageId);
             } else if (callBackQuery.equals("STUDENT_BUTTON")) {
                 sendMessage(chatId, "Введите название группы вместе с подгруппой так как указанно в расписании \nНапример: 24ИСиТ1д_1");
                 user.setStatus(STUDENT);
+                user.setGroup(null);
                 userRepository.save(user);
                 deleteMessages(chatId, messageId);
             }

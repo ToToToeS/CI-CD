@@ -15,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.List;
 
 
 @Slf4j
@@ -24,7 +25,7 @@ public class DownloadExcel {
     @Value("${path.excel}")
     private String pathExcel;
     @Value("${path.website}")
-    private String[] siteUrls;
+    private List<String> siteUrls;
 
 
 
@@ -66,7 +67,6 @@ public class DownloadExcel {
                         i++;
                     }
                 }
-                log.error("ExcelFile in website not found");
             }
         } catch (IOException e) {
             log.error("Excel file no downloaded");
