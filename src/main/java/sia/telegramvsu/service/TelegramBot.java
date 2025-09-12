@@ -100,8 +100,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
 
 
-            if (user.getStatus().equals(TEACHER)) {
-                if (user.getGroup() == null && excelParser.getTeacherHowInSchedule(msg.getText()) != null) {
+            if (user.getStatus().equals(TEACHER) && user.getGroup() == null) {
+                if (excelParser.getTeacherHowInSchedule(msg.getText()) != null) {
                     user.setGroup(excelParser.getTeacherHowInSchedule(msg.getText()));
                     sendChosenDayWeek(chatId, msg.getText());
                     userRepository.save(user);

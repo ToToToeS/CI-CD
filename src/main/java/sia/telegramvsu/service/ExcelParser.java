@@ -15,8 +15,11 @@ import sia.telegramvsu.model.WeekDay;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static sia.telegramvsu.service.ApachePoi.parseExcelWithMergedCells;
 
 @Slf4j
 @Data
@@ -28,7 +31,7 @@ public class ExcelParser {
 
     final int ROWS_BETWEEN_LESSONS = 3;
     final int TIME_COLUMN_NUMBER = 2;
-    final int GROUPS_ROW_NUMBER = 12;
+    final int GROUPS_ROW_NUMBER = 13;
 
     private Map<String, Map<WeekDay,List<LessonVSU>>> schedule;
 
@@ -42,43 +45,32 @@ public class ExcelParser {
             File folder = new File(filePath);
             File[] files = folder.listFiles();
             for (var file : files) {
-               List<List<String>> list = new ArrayList<>();
 
                 if (file.getName().contains(".xlsx")) {
-                    fis = new FileInputStream(file);
-                    workbook = new XSSFWorkbook(fis);
 
-                    Sheet sheet = workbook.getSheetAt(0); // Берём первый лист
-
-                    for (Row row : sheet) {
+                    WeekDay dayNow = null;
+                    List<List<String>> list = parseExcelWithMergedCells(file);
 
 
-                        List<String> rowData = new ArrayList<>();
-                        for (Cell cell : row) {
-                            rowData.add(getCellValueAsString(cell));
-                        }
-                        list.add(rowData);
-
-                    }
 
                     for (int indexGroup = 3; indexGroup < list.get(GROUPS_ROW_NUMBER).size(); indexGroup++) {
-                        Iterator<WeekDay> week = Arrays.stream(WeekDay.values()).iterator();
                         Map<WeekDay,List<LessonVSU>> dayLessonVSUMap = new HashMap<>();
-                        WeekDay dayNow = null;
 
-                        final int firstDayIndex = 14;
-                        Optional<WeekDay> dayNowOptional = Arrays.stream(WeekDay.values())
-                                .filter(data -> data.dayString.equalsIgnoreCase(list.get(firstDayIndex).get(0)))
-                                .findFirst();
-
-                        if (dayNowOptional.isPresent()) {
-                            dayNow = dayNowOptional.get();
-                        } else continue;
-
-                        for (int i = 14; i < list.size()-4; i+=ROWS_BETWEEN_LESSONS) {
-
-                            
+                        for (int i = 15; i < list.size()-4; i+=ROWS_BETWEEN_LESSONS) {
+                            while (list.get(i).get(0).isEmpty()) {
+                                if (i < list.size()-4) i++;
+                                else break;
+                            }
                             final int finalI = i;
+
+                            var dayNowOptional = Arrays.stream(WeekDay.values())
+                                    .filter(weekDay -> weekDay.dayString.equals(list.get(finalI).get(0)))
+                                    .findFirst();
+
+                            if (dayNowOptional.isPresent()) {
+                                dayNow = dayNowOptional.get();
+                            } else continue;
+
 
                             LessonVSU lesson = new LessonVSU();
                             lesson.setNumber(list.get(i).get(TIME_COLUMN_NUMBER));
@@ -91,14 +83,8 @@ public class ExcelParser {
                             if (!dayLessonVSUMap.containsKey(dayNow)) {
                                 dayLessonVSUMap.put(dayNow, new ArrayList<>());
                             }
-                            dayLessonVSUMap.get(dayNow).add(lesson);
 
-                            if (!list.get(i+4).get(0).isEmpty() && i+4 < list.size()-4) {
-                                dayNow = Arrays.stream(WeekDay.values())
-                                        .filter(data -> data.dayString.equalsIgnoreCase(list.get(finalI + 4).get(0)))
-                                        .findFirst().get();
-                                i++;
-                            }
+                            dayLessonVSUMap.get(dayNow).add(lesson);
                         }
 
                         schedule.put(list.get(GROUPS_ROW_NUMBER).get(indexGroup).trim(), dayLessonVSUMap);
@@ -208,16 +194,5 @@ public class ExcelParser {
                 .findFirst();
 
         return lessonOptional.map(LessonVSU::getLector).orElse(null);
-    }
-
-    private String getCellValueAsString(Cell cell) {
-        return switch (cell.getCellType()) {
-            case STRING -> cell.getStringCellValue();
-            case NUMERIC -> String.valueOf  (cell.getNumericCellValue());
-            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
-            case FORMULA -> cell.getCellFormula();
-            case BLANK, _NONE -> "";
-            default -> "UNKNOWN";
-        };
     }
 }
