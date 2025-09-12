@@ -16,7 +16,7 @@ spring:
 
 
 path:
-  website: https://vsu.by/universitet/fakultety/matematiki-i-it/raspisanie.html, https://vsu.by/universitet/fakultety/obucheniya-inostrannykh-grazhdan/raspisanie.html, https://vsu.by/universitet/fakultety/biologicheskij/raspisanie.html, https://vsu.by/universitet/fakultety/pedagogicheskij-fakultet/raspisanie.html, https://vsu.by/universitet/fakultety/sotsialnoj-pedagogiki-i-psikhologii/raspisanie.html, https://vsu.by/universitet/fakultety/fizicheskoj-kultury-i-sporta/raspisanie.html, https://vsu.by/universitet/fakultety/fakultet-gumanitarnogo-znaniya-i-kommunikacij/raspisanie.html, https://vsu.by/universitet/fakultety/khudozhestvenno-graficheskij/raspisanie.html, https://vsu.by/universitet/fakultety/yuridicheskij/raspisanie.html
+  website: https://vsu.by/universitet/fakultety/matematiki-i-it/raspisanie.html, https://vsu.by/universitet/fakultety/obucheniya-inostrannykh-grazhdan/raspisanie.html, https://vsu.by/universitet/fakultety/biologicheskij/raspisanie.html, https://vsu.by/universitet/fakultety/pedagogicheskij-fakultet/raspisanie.html, https://vsu.by/universitet/fakultety/sotsialnoj-pedagogiki-i-psikhologii/raspisanie.html, https://vsu.by/universitet/fakultety/fizicheskoj-kultury-i-sporta/raspisanie.html, https://vsu.by/universitet/fakultety/fakultet-gumanitarnogo-znaniya-i-kommunikacij/raspisanie.html, https://vsu.by/universitet/fakultety/khudozhestvenno-graficheskij/raspisanie.html, https://vsu.by/universitet/fakultety/yuridicheskij/raspisanie.html, https://vsu.by/magistrantam-i-aspirantam/magistrantam/raspisanie/266-magistrantam.html
 
   excel: /var/log/shatilo/
 
