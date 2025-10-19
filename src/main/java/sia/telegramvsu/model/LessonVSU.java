@@ -11,7 +11,7 @@ public class LessonVSU implements Cloneable{
     private String subject;
     private String lector;
     private String auditorium;
-
+    private String date;
 
 
     @Override
@@ -29,6 +29,7 @@ public class LessonVSU implements Cloneable{
     public LessonVSU clone() {
         LessonVSU clone = new LessonVSU();
 
+        clone.setDate(this.date);
         clone.setNumber(this.getNumber());
         clone.setTime(this.getTime());
         clone.setSubject(this.getSubject());

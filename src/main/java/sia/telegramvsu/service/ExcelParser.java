@@ -2,22 +2,17 @@ package sia.telegramvsu.service;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import sia.telegramvsu.model.LessonVSU;
+import sia.telegramvsu.model.NumberLesson;
 import sia.telegramvsu.model.WeekDay;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static sia.telegramvsu.service.ApachePoi.parseExcelWithMergedCells;
 
@@ -33,6 +28,7 @@ public class ExcelParser {
     final int TIME_COLUMN_NUMBER = 2;
     final int GROUPS_ROW_NUMBER = 13;
 
+    private Set<String> auditoriums;
     private Map<String, Map<WeekDay,List<LessonVSU>>> schedule;
 
     public void parseExel() throws IOException {
@@ -79,6 +75,7 @@ public class ExcelParser {
                             lesson.setSubject(list.get(i).get(indexGroup));
                             lesson.setLector(list.get(i + 1).get(indexGroup));
                             lesson.setAuditorium(list.get(i + 2).get(indexGroup));
+                            lesson.setDate(list.get(i).get(1));
 
                             if (!dayLessonVSUMap.containsKey(dayNow)) {
                                 dayLessonVSUMap.put(dayNow, new ArrayList<>());
@@ -98,7 +95,7 @@ public class ExcelParser {
             log.error("Error parse exel" + e.getMessage());
         }
 
-
+        auditoriums = getAllAuditorium();
     }
 
     public String getDaySubjectsStudent(WeekDay weekDay, String groupName) {
@@ -111,9 +108,56 @@ public class ExcelParser {
         for (WeekDay weekDay : WeekDay.values()) {
             sb.append(getDaySubjectsStudent(weekDay, groupName))
             .append("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-
         }
+
+        sb.append(schedule.get(groupName).get(WeekDay.MONDAY).get(0).getDate())
+                .append(" - ")
+                .append(schedule.get(groupName).get(WeekDay.SATURDAY).get(0).getDate());
+
         return sb.toString();
+    }
+
+    public List<String> getFreeAuditoriums(WeekDay weekDay, NumberLesson numberLesson) {
+
+        Set<String> auditoriumsBusy = new HashSet<>();
+
+        for (Map.Entry<String, Map<WeekDay, List<LessonVSU>>> groupEntry : schedule.entrySet()) {
+            Map<WeekDay, List<LessonVSU>> daySchedule = groupEntry.getValue();
+            for (Map.Entry<WeekDay, List<LessonVSU>> dayEntry : daySchedule.entrySet()) {
+                List<LessonVSU> lessons = dayEntry.getValue();
+                for (LessonVSU lesson : lessons) {
+                    if (lesson.getNumber().equalsIgnoreCase(numberLesson.getNumber())) {
+                        auditoriumsBusy.add(lesson.getAuditorium());
+                    }
+                }
+            }
+        }
+        Set<String> auditoriumsAll = new HashSet<>(auditoriums);
+        auditoriumsAll.removeAll(auditoriumsBusy);
+
+        List<String> list = auditoriumsAll.stream().filter(auditorium -> auditorium.length() < 12)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+
+        list.sort(String::compareTo);
+
+        return list;
+    }
+
+    public Set<String> getAllAuditorium() {
+        Set<String> auditoriums = new HashSet<>();
+        Set<String> groups = schedule.keySet();
+
+        for (WeekDay weekDay : WeekDay.values()) {
+            for (String group : groups) {
+                List<LessonVSU> dayLessons = schedule.get(group).get(weekDay);
+                if (dayLessons == null) continue;
+                for (LessonVSU lesson : dayLessons) {
+                    auditoriums.add(lesson.getAuditorium());
+                }
+            }
+        }
+
+        return auditoriums;
     }
 
     public String getDaySubjectsTeacher(WeekDay weekDay, String nameTeacher) {
@@ -125,7 +169,7 @@ public class ExcelParser {
             if (dayLessons == null) continue;
             for (LessonVSU lesson : dayLessons) {
                 if (lesson.getLector().equals(nameTeacher)) {
-                    if (!lessons.isEmpty() &&lessons.get(lessons.size() -1).getNumber().equals(lesson.getNumber())) {
+                    if (!lessons.isEmpty() && lessons.get(lessons.size() -1).getNumber().equals(lesson.getNumber())) {
                         lessons.get(lessons.size() -1).setLector(lessons.get(lessons.size() -1).getLector() + ", " + group);
                     }else {
                         LessonVSU cloneLesson = lesson.clone();
@@ -154,7 +198,6 @@ public class ExcelParser {
         for (WeekDay weekDay : WeekDay.values()) {
             sb.append(getDaySubjectsTeacher(weekDay, nameTeacher))
                     .append("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-
         }
         return sb.toString();
     }
