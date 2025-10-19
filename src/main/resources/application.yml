@@ -16,10 +16,10 @@ spring:
 
 
 path:
-  website: https://vsu.by/universitet/fakultety/matematiki-i-it/raspisanie.html, https://vsu.by/universitet/fakultety/obucheniya-inostrannykh-grazhdan/raspisanie.html, https://vsu.by/universitet/fakultety/biologicheskij/raspisanie.html, https://vsu.by/universitet/fakultety/pedagogicheskij-fakultet/raspisanie.html, https://vsu.by/universitet/fakultety/sotsialnoj-pedagogiki-i-psikhologii/raspisanie.html, https://vsu.by/universitet/fakultety/fizicheskoj-kultury-i-sporta/raspisanie.html, https://vsu.by/universitet/fakultety/fakultet-gumanitarnogo-znaniya-i-kommunikacij/raspisanie.html, https://vsu.by/universitet/fakultety/khudozhestvenno-graficheskij/raspisanie.html, https://vsu.by/universitet/fakultety/yuridicheskij/raspisanie.html
+  website: https://vsu.by/universitet/fakultety/matematiki-i-it/raspisanie.html, https://vsu.by/universitet/fakultety/biologicheskij/raspisanie.html, https://vsu.by/universitet/fakultety/pedagogicheskij-fakultet/raspisanie.html, https://vsu.by/universitet/fakultety/sotsialnoj-pedagogiki-i-psikhologii/raspisanie.html, https://vsu.by/universitet/fakultety/fizicheskoj-kultury-i-sporta/raspisanie.html, https://vsu.by/universitet/fakultety/fakultet-gumanitarnogo-znaniya-i-kommunikacij/raspisanie.html, https://vsu.by/universitet/fakultety/khudozhestvenno-graficheskij/raspisanie.html, https://vsu.by/universitet/fakultety/yuridicheskij/raspisanie.html, https://vsu.by/magistrantam-i-aspirantam/magistrantam/raspisanie/266-magistrantam.html
 
   excel: /var/log/shatilo/
 
 bot:
   name: ScheduleVSU
-  token: 8377345016:AAF8v-nHFnYfF1-H1ELaxoqY141toQJ0Hs8
+  token: 7907789800:AAGTX14h9uIO8GJ0wA1UgRQKY6Egu2LZa98

@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import sia.telegramvsu.config.BotConfig;
+import sia.telegramvsu.model.NumberLesson;
 import sia.telegramvsu.model.User;
 import sia.telegramvsu.model.UserRepository;
 import sia.telegramvsu.model.WeekDay;
@@ -41,6 +42,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private BotConfig botConfig;
     private ExcelParser excelParser;
     private DownloadExcel downloadExcel;
+    private WeekDay dayLesson;
 
     @Scheduled(cron = "0 0 6 * * *")
     public void downloadExcel() throws IOException {
@@ -80,7 +82,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendChosenStatus(chatId);
             }
 
-
             if (user.getUserName() != null) {
                 switch (msg.getText()) {
                     case "/reset":
@@ -95,13 +96,15 @@ public class TelegramBot extends TelegramLongPollingBot {
                                 belinvestbank: 5578843371248679
                                 """);
                         return;
+                    case "/free":
+                         sendChosenDayWeekForSearchLesson(chatId);
                 }
 
             }
 
 
-            if (user.getStatus().equals(TEACHER)) {
-                if (user.getGroup() == null && excelParser.getTeacherHowInSchedule(msg.getText()) != null) {
+            if (user.getStatus().equals(TEACHER) && user.getGroup() == null) {
+                if (excelParser.getTeacherHowInSchedule(msg.getText()) != null) {
                     user.setGroup(excelParser.getTeacherHowInSchedule(msg.getText()));
                     sendChosenDayWeek(chatId, msg.getText());
                     userRepository.save(user);
@@ -169,6 +172,104 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendSchedules(chatId, message);
                 deleteMessages(chatId, messageId);
 
+            } else if (callBackQuery.equals("MONDAY_BUTTON_LESSON")) {
+                dayLesson = WeekDay.MONDAY;
+                sendChosenLessonNumber(chatId);
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("TUESDAY_BUTTON_LESSON")) {
+                dayLesson = WeekDay.TUESDAY;
+                sendChosenLessonNumber(chatId);
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("WEDNESDAY_BUTTON_LESSON")) {
+                dayLesson = WeekDay.WEDNESDAY;
+                sendChosenLessonNumber(chatId);
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("THURSDAY_BUTTON_LESSON")) {
+                dayLesson = WeekDay.THURSDAY;
+                sendChosenLessonNumber(chatId);
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("FRIDAY_BUTTON_LESSON")) {
+                dayLesson = WeekDay.FRIDAY;
+                sendChosenLessonNumber(chatId);
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("LESSON_1")) {
+                sendMessage(chatId, excelParser.getFreeAuditoriums(dayLesson, NumberLesson.LESSON_1).toString());
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("LESSON_2")) {
+                sendMessage(chatId, excelParser.getFreeAuditoriums(dayLesson, NumberLesson.LESSON_2).toString());
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("LESSON_3")) {
+                sendMessage(chatId, excelParser.getFreeAuditoriums(dayLesson, NumberLesson.LESSON_3).toString());
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("LESSON_4")) {
+                sendMessage(chatId, excelParser.getFreeAuditoriums(dayLesson, NumberLesson.LESSON_4).toString());
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("LESSON_5")) {
+                sendMessage(chatId, excelParser.getFreeAuditoriums(dayLesson, NumberLesson.LESSON_5).toString());
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("LESSON_6")) {
+                sendMessage(chatId, excelParser.getFreeAuditoriums(dayLesson, NumberLesson.LESSON_6).toString());
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("LESSON_7")) {
+                sendMessage(chatId, excelParser.getFreeAuditoriums(dayLesson, NumberLesson.LESSON_7).toString());
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("LESSON_8")) {
+                sendMessage(chatId, excelParser.getFreeAuditoriums(dayLesson, NumberLesson.LESSON_8).toString());
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("ALL_BUTTON")) {
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getWeekSubjectsTeacher(group) : excelParser.getWeekSubjectsStudent(group);
+                sendSchedules(chatId, message);
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("CHANGE_DAY")) {
+                sendChosenDayWeek(chatId, user.getGroup());
+            } else if (callBackQuery.equals("TEACHER_BUTTON")) {
+                sendMessage(chatId, "Введите ФИО так как указанно в расписании \nНапример: Дрозд Е. М.");
+                user.setStatus(TEACHER);
+                user.setGroup(null);
+                userRepository.save(user);
+                deleteMessages(chatId, messageId);
+            } else if (callBackQuery.equals("STUDENT_BUTTON")) {
+                sendMessage(chatId, "Введите название группы вместе с подгруппой так как указанно в расписании \nНапример: 24ИСиТ1д_1");
+                user.setStatus(STUDENT);
+                user.setGroup(null);
+                userRepository.save(user);
+                deleteMessages(chatId, messageId);
+            } if (callBackQuery.equals("MONDAY_BUTTON")) {
+
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getDaySubjectsTeacher(WeekDay.MONDAY, group) : excelParser.getDaySubjectsStudent(WeekDay.MONDAY, group);
+                sendSchedules(chatId, message);
+                deleteMessages(chatId, messageId);
+
+            } else if (callBackQuery.equals("TUESDAY_BUTTON")) {
+
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getDaySubjectsTeacher(WeekDay.TUESDAY, group) : excelParser.getDaySubjectsStudent(WeekDay.TUESDAY, group);
+                sendSchedules(chatId, message);
+                deleteMessages(chatId, messageId);
+
+            } else if (callBackQuery.equals("WEDNESDAY_BUTTON")) {
+
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getDaySubjectsTeacher(WeekDay.WEDNESDAY, group) : excelParser.getDaySubjectsStudent(WeekDay.WEDNESDAY, group);
+                sendSchedules(chatId, message);
+                deleteMessages(chatId, messageId);
+
+            }else if (callBackQuery.equals("THURSDAY_BUTTON")) {
+
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getDaySubjectsTeacher(WeekDay.THURSDAY, group) : excelParser.getDaySubjectsStudent(WeekDay.THURSDAY, group);
+                sendSchedules(chatId, message);
+                deleteMessages(chatId, messageId);
+
+            } else if (callBackQuery.equals("FRIDAY_BUTTON")) {
+
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getDaySubjectsTeacher(WeekDay.FRIDAY, group) : excelParser.getDaySubjectsStudent(WeekDay.FRIDAY, group);
+                sendSchedules(chatId, message);
+                deleteMessages(chatId, messageId);
+
+            } else if (callBackQuery.equals("SATURDAY_BUTTON")) {
+
+                String message = user.getStatus().equals(TEACHER) ? excelParser.getDaySubjectsTeacher(WeekDay.SATURDAY, group) : excelParser.getDaySubjectsStudent(WeekDay.SATURDAY, group);
+                sendSchedules(chatId, message);
+                deleteMessages(chatId, messageId);
+
             } else if (callBackQuery.equals("ALL_BUTTON")) {
                 String message = user.getStatus().equals(TEACHER) ? excelParser.getWeekSubjectsTeacher(group) : excelParser.getWeekSubjectsStudent(group);
                 sendSchedules(chatId, message);
@@ -189,6 +290,72 @@ public class TelegramBot extends TelegramLongPollingBot {
                 deleteMessages(chatId, messageId);
             }
         }
+    }
+
+    private void sendChosenLessonNumber(long chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText("""
+                Выберете номер занятия:
+                """);
+
+        InlineKeyboardMarkup inlineKeyboardButton = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
+        List<InlineKeyboardButton> rowInLine1 = new ArrayList<>();
+        List<InlineKeyboardButton> rowInLine2 = new ArrayList<>();
+        List<InlineKeyboardButton> rowInLine3 = new ArrayList<>();
+        List<InlineKeyboardButton> rowInLine4 = new ArrayList<>();
+
+
+        var first = new InlineKeyboardButton();
+        var second = new InlineKeyboardButton();
+        var third = new InlineKeyboardButton();
+        var fourth = new InlineKeyboardButton();
+        var fifth = new InlineKeyboardButton();
+        var sixth = new InlineKeyboardButton();
+        var seventh = new InlineKeyboardButton();
+        var eight = new InlineKeyboardButton();
+
+
+
+        first.setText("1");
+        second.setText("2");
+        third.setText("3");
+        fourth.setText("4");
+        fifth.setText("5");
+        sixth.setText("6");
+        seventh.setText("7");
+        eight.setText("8");
+
+
+        first.setCallbackData("LESSON_1");
+        second.setCallbackData("LESSON_2");
+        third.setCallbackData("LESSON_3");
+        fourth.setCallbackData("LESSON_4");
+        fifth.setCallbackData("LESSON_5");
+        sixth.setCallbackData("LESSON_6");
+        seventh.setCallbackData("LESSON_7");
+        eight.setCallbackData("LESSON_8");
+
+        rowInLine1.add(first);
+        rowInLine1.add(second);
+        rowInLine2.add(third);
+        rowInLine2.add(fourth);
+        rowInLine3.add(fifth);
+        rowInLine3.add(sixth);
+        rowInLine4.add(seventh);
+        rowInLine4.add(eight);
+
+
+        rowsInLine.add(rowInLine1);
+        rowsInLine.add(rowInLine2);
+        rowsInLine.add(rowInLine3);
+        rowsInLine.add(rowInLine4);
+
+        inlineKeyboardButton.setKeyboard(rowsInLine);
+
+        sendMessage.setReplyMarkup(inlineKeyboardButton);
+        executeMessage(sendMessage);
     }
 
     private void sendChosenDayWeek(long chatId, String group) {
@@ -248,6 +415,64 @@ public class TelegramBot extends TelegramLongPollingBot {
         rowsInLine.add(rowInLine2);
         rowsInLine.add(rowInLine3);
         rowsInLine.add(rowInLine4);
+
+        inlineKeyboardButton.setKeyboard(rowsInLine);
+
+        sendMessage.setReplyMarkup(inlineKeyboardButton);
+        executeMessage(sendMessage);
+    }
+
+    private void sendChosenDayWeekForSearchLesson(long chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText("""
+                Выберете день недели:
+                """);
+
+        InlineKeyboardMarkup inlineKeyboardButton = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
+        List<InlineKeyboardButton> rowInLine1 = new ArrayList<>();
+        List<InlineKeyboardButton> rowInLine2 = new ArrayList<>();
+        List<InlineKeyboardButton> rowInLine3 = new ArrayList<>();
+        List<InlineKeyboardButton> rowInLine4 = new ArrayList<>();
+
+
+        var monButton = new InlineKeyboardButton();
+        var tuyButton = new InlineKeyboardButton();
+        var wedButton = new InlineKeyboardButton();
+        var thuButton = new InlineKeyboardButton();
+        var friButton = new InlineKeyboardButton();
+        var satButton = new InlineKeyboardButton();
+        var allButton = new InlineKeyboardButton();
+
+
+
+        monButton.setText("Понедельник");
+        tuyButton.setText("Вторник");
+        wedButton.setText("Среда");
+        thuButton.setText("Четверг");
+        friButton.setText("Пятница");
+        satButton.setText("Суббота");
+
+
+        monButton.setCallbackData("MONDAY_BUTTON_LESSON");
+        tuyButton.setCallbackData("TUESDAY_BUTTON_LESSON");
+        wedButton.setCallbackData("WEDNESDAY_BUTTON_LESSON");
+        thuButton.setCallbackData("THURSDAY_BUTTON_LESSON");
+        friButton.setCallbackData("FRIDAY_BUTTON_LESSON");
+        satButton.setCallbackData("SATURDAY_BUTTON_LESSON");
+
+        rowInLine1.add(monButton);
+        rowInLine1.add(tuyButton);
+        rowInLine2.add(wedButton);
+        rowInLine2.add(thuButton);
+        rowInLine3.add(friButton);
+        rowInLine3.add(satButton);
+
+
+        rowsInLine.add(rowInLine1);
+        rowsInLine.add(rowInLine2);
+        rowsInLine.add(rowInLine3);
 
         inlineKeyboardButton.setKeyboard(rowsInLine);
 
