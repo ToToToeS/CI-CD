@@ -1,6 +1,10 @@
-version: '3.8'
-
 services:
+  schedule-vsu:
+    build: .
+    image: cicd-schedulevsu
+    depends_on:
+      - postgres
+
   postgres:
     image: postgres:15
     container_name: postgres-users
@@ -17,3 +21,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
